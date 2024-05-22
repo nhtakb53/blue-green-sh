@@ -96,13 +96,24 @@ function deploy {
         DEPLOY_PORT_MAIN=$PORT_GREEN_MAIN
         DEPLOY_PORT_MANAGEMENT=$PORT_GREEN_MANAGEMENT
         OLD_PORT_MANAGEMENT=$PORT_BLUE_MANAGEMENT
+        NEW_APP_NAME="green-${APP_NAME}"
         echo -e "${COLOR_GREEN}Deploying $APP_NAME on green.${COLOR_RESET}"
     else
         DEPLOY_PORT_MAIN=$PORT_BLUE_MAIN
         DEPLOY_PORT_MANAGEMENT=$PORT_BLUE_MANAGEMENT
         OLD_PORT_MANAGEMENT=$PORT_GREEN_MANAGEMENT
+        NEW_APP_NAME="blue-${APP_NAME}"
         echo -e "${COLOR_BLUE}Deploying $APP_NAME on blue.${COLOR_RESET}"
     fi
+
+    # 애플리케이션 파일 복사 및 이름 변경
+    cp /home/actdev/cms-core/$APP_NAME /home/actdev/cms-core/$NEW_APP_NAME
+    if [ $? -ne 0 ]; then
+        echo -e "Failed to copy $APP_NAME to $NEW_APP_NAME."
+        exit 1
+    fi
+
+    APP_NAME=$NEW_APP_NAME
 
     start_and_check_health $APP_NAME $PROFILE $DEPLOY_PORT_MAIN $DEPLOY_PORT_MANAGEMENT
     switch_nginx_config $CURRENT_VERSION
